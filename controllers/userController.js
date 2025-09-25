@@ -39,3 +39,28 @@ export async function registerUser(req,res){
 }
 
 // login function
+export async function loginUser(req,res){
+    const {email, password} = req.body;
+    if(!email || password) {
+        return res.status(400).json({success: false,message:"Email and password required"})
+    }
+    try{
+        const user = await User.findOne({email});
+        if(!user) {
+            return res.status(401).json({success:false,message:"invalid user"})
+        }
+        const match = await bcrypt.compare(password, user.password);
+        
+        if(!match) {
+            return res.status(401).json({success: false,message:"Invalid Credentials"})
+        }
+        const token = createToken(user._id);
+        res.json({success: true, token, user: {id: user._id, name: user.name, email: user.email}})
+    }
+    catch (err) {
+     console.log(err);
+    res.status(500).json({success: false, message: "Server error"})
+    }
+}
+
+// get current user
