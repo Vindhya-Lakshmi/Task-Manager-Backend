@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import 'dotenv/config'
 import { connectDB } from './config/database.js';
+import userRouter from './routes/userRoute.js'
 
 
 const app = express();
@@ -16,6 +17,8 @@ app.use(express.urlencoded({extended:true}));
 connectDB()
 
 //route
+app.use("/api/user", userRouter)
+
 app.get('/',(req, res)=>{
     res.send("sample rout")
 })

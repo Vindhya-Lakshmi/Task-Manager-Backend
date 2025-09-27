@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "you_jwt_secret_here";
-const TOKEN_EXPIRES = "24h";
+const TOKEN_EXPIRES = process.env.TOKEN_EXPIRES
 
 const createToken = (userId) =>
   jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: TOKEN_EXPIRES });
@@ -12,8 +12,12 @@ const createToken = (userId) =>
 //register function
 export async function registerUser(req, res) {
   const { name, email, password } = req.body;
+  console.log("body",req.body);
+  
 
-  if (!name || email || password) {
+  if (!name || !email || !password) {
+    console.log("ooo",name , email , password);
+    
     return res
       .status(400)
       .json({ success: false, message: "All fields are reuired" });
@@ -36,8 +40,14 @@ export async function registerUser(req, res) {
         .json({ success: false, message: "User already exists" });
     }
     const hashed = await bcrypt.hash(password, 10);
+    console.log("hashed",hashed);
+    
     const user = await User.create({ name, email, password: hashed });
+        console.log("user",user);
+
     const token = createToken(user._id);
+        console.log("token",token);
+
 
     res
       .status(201)
@@ -128,4 +138,29 @@ export async function updateProfile(req,res){
 }
 
 
-// chane password function
+// change password function
+export async function updatePassword(req, res) {
+    const {currentPassword, newPassword} = req.body;
+
+    if(!currentPassword || !newPassword || newPassword.length < 8){
+        return res.json(400).json({success: false, message:"Password invalid or too short"})
+    }
+
+    try {
+        const user = await User.findById(req.user.id).select("password")
+        if(!user){
+            return res.status(404).json({success: false, message:"User not found"})
+        }
+        const match = await bcrypt.compare(currentPassword,user.password);
+        if(!match) {
+            return res.status(401).json({success:false, message: "current password incorrect"})
+        }
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+        res.json({success: true, message: "Password changed"})
+    }
+    catch {
+        console.log(err);
+        res.status(500).json({success: false, message: "server error"})
+    }
+}
