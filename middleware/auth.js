@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken'
-import user from '../models/userModel.js'
+import User from '../models/userModel.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || "you_jwt_secret_here";
 
@@ -10,7 +10,7 @@ export default async function authMiddleware(req, res, next) {
         return res.status(401).json({success:false,message:"Not authorized, token missing"})
     }
 
-    const token = authHeader.split('')[1];
+    const token = authHeader.split(' ')[1];
     //verify $ attach user object
     try{
         const payload = jwt.verify(token, JWT_SECRET);

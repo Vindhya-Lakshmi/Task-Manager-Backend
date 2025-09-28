@@ -65,7 +65,7 @@ export async function registerUser(req, res) {
 // login function
 export async function loginUser(req, res) {
   const { email, password } = req.body;
-  if (!email || password) {
+  if (!email || !password) {
     return res
       .status(400)
       .json({ success: false, message: "Email and password required" });
@@ -124,14 +124,14 @@ export async function updateProfile(req,res){
             return res.status(400).json({success: false,message:"Email already in use by another account"})
          }
          const user = await User.findByIdAndUpdate(
-            re.user.id,
+            req.user.id,
             {name,email},
             {new: true, runValidators: true, select: "name email"}
          )
-         res.join({success: true, user})
+         res.json({success: true, user})
     }
     catch (error) {
-    console.log(err);
+    console.log(error);
     res.status(500).json({ success: false, message: "Server error" });
     }
 
@@ -159,7 +159,7 @@ export async function updatePassword(req, res) {
         await user.save();
         res.json({success: true, message: "Password changed"})
     }
-    catch {
+    catch(err) {
         console.log(err);
         res.status(500).json({success: false, message: "server error"})
     }
