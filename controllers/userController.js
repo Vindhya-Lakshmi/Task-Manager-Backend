@@ -65,6 +65,8 @@ export async function registerUser(req, res) {
 // login function
 export async function loginUser(req, res) {
   const { email, password } = req.body;
+  console.log("req.body",req.body);
+  
   if (!email || !password) {
     return res
       .status(400)

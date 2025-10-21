@@ -19,8 +19,10 @@ export const createTask = async (req, res) => {
 
 //get all task for logged 
 export const getTasks = async(req,res) =>{
-try{
-    const tasks = await Task.find({owner:req.user.id}.sort({createdAt: -1}));
+    try{
+    const tasks = await Task.find({owner:req.user.id}).sort({createdAt: -1});
+    console.log("tasks",tasks);
+    
     res.json({success: true, tasks});
 }
 catch (err) {
