@@ -98,8 +98,10 @@ export async function loginUser(req, res) {
 
 // get current user
 export async function getCurrentUser(req, res) {
+  
   try {
     const user = await User.findById(req.user.id).select("name email");
+    
     if (!user) {
       return res
         .status(400)
